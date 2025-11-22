@@ -1,4 +1,4 @@
-package org.ecoride.passengerservice.model;
+package org.ecoride.passengerservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,20 +39,6 @@ public class Rating {
     @Column(nullable = false)
     private Integer score;
 
-
     @Column(columnDefinition = "TEXT")
     private String comment;
-
-
-    /**
-     * Regla de dominio: un pasajero no puede calificarse a sí mismo
-     * Se valida antes de la persistencia para mantener la integridad.
-     */
-    @PrePersist
-    public void validateNotSelf() {
-        if (fromPassenger != null && toPassenger != null &&
-                fromPassenger.getId() != null && fromPassenger.getId().equals(toPassenger.getId())) {
-            throw new IllegalStateException("A passenger cannot rate themselves");
-        }
-    }
 }

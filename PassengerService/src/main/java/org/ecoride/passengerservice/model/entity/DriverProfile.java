@@ -1,10 +1,12 @@
-package org.ecoride.passengerservice.model;
+package org.ecoride.passengerservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ecoride.passengerservice.model.Enum.VerificationStatus;
+
 import java.util.UUID;
 
 @Entity
@@ -33,8 +35,9 @@ public class DriverProfile {
     @Column(name = "seats_offered", nullable = false)
     private Integer seatsOffered;
 
-    @Column(name = "verification_status", nullable = false, length = 20)
-    private String verificationStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "verification_status")
+    private VerificationStatus verificationStatus;
 
     /**
      * Inicializa valores por defecto antes de la persistencia,
@@ -43,6 +46,6 @@ public class DriverProfile {
     @PrePersist
     public void prePersist() {
         if (seatsOffered == null) seatsOffered = 1;
-        if (verificationStatus == null) verificationStatus = "PENDING";
+        if (verificationStatus == null) verificationStatus = VerificationStatus.PENDING;
     }
 }

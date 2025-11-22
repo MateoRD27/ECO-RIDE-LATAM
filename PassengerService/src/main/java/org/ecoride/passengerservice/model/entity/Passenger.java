@@ -1,4 +1,4 @@
-package org.ecoride.passengerservice.model;
+package org.ecoride.passengerservice.model.entity;
 
 
 import jakarta.persistence.*;
@@ -37,9 +37,4 @@ public class Passenger {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) createdAt = LocalDateTime.now();
-        if (ratingAvg == null) ratingAvg = 0.0;
-    }
 }
