@@ -1,6 +1,8 @@
 package org.ecoride.passengerservice.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ecoride.passengerservice.dto.DriverProfileRequestDTO;
 import org.ecoride.passengerservice.exception.DriverProfileAlreadyExistsException;
 import org.ecoride.passengerservice.exception.ResourceNotFoundException;
@@ -14,18 +16,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j  // ⬅️ Agregar
 public class DriverProfileServiceImpl implements DriverProfileService {
 
     private final DriverProfileRepository driverProfileRepository;
     private final PassengerRepository passengerRepository;
 
     @Override
+    @Transactional
     public DriverProfile createProfile(String keycloakSub, DriverProfileRequestDTO request) {
+        log.info("Creating driver profile for keycloakSub={}", keycloakSub);
 
         Passenger passenger = passengerRepository.findByKeycloakSub(keycloakSub)
                 .orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
 
         if (driverProfileRepository.existsByPassengerId(passenger.getId())) {
+            log.warn("Driver profile already exists for passenger: {}", passenger.getId());
             throw new DriverProfileAlreadyExistsException("Driver profile already exists");
         }
 
@@ -37,7 +43,8 @@ public class DriverProfileServiceImpl implements DriverProfileService {
                 .verificationStatus(VerificationStatus.PENDING)
                 .build();
 
-        return driverProfileRepository.save(profile);
+        DriverProfile saved = driverProfileRepository.save(profile);
+        log.info("Driver profile created successfully: id={}, passengerId={}", saved.getId(), passenger.getId());  // ⬅️ Agregar
+        return saved;
     }
-
 }

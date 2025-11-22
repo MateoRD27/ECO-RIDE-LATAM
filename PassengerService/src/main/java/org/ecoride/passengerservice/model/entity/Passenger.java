@@ -37,4 +37,14 @@ public class Passenger {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (ratingAvg == null) {
+            ratingAvg = 0.0;
+        }
+    }
+
 }

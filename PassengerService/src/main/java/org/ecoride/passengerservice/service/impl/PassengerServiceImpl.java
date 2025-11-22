@@ -1,5 +1,6 @@
 package org.ecoride.passengerservice.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.ecoride.passengerservice.dto.PassengerResponseDTO;
 import org.ecoride.passengerservice.exception.ResourceNotFoundException;
@@ -26,6 +27,7 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Override
+    @Transactional
     public PassengerResponseDTO createPassengerIfNotExists(String keycloakSub, String name, String email) {
 
         Passenger passenger = passengerRepository.findByKeycloakSub(keycloakSub)

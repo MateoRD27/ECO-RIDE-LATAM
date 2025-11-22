@@ -39,13 +39,4 @@ public class DriverProfile {
     @Column(name = "verification_status")
     private VerificationStatus verificationStatus;
 
-    /**
-     * Inicializa valores por defecto antes de la persistencia,
-     * garantizando la consistencia del dominio.
-     */
-    @PrePersist
-    public void prePersist() {
-        if (seatsOffered == null) seatsOffered = 1;
-        if (verificationStatus == null) verificationStatus = VerificationStatus.PENDING;
-    }
 }

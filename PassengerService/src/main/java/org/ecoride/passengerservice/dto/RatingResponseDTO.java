@@ -11,10 +11,11 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PassengerResponseDTO {
+public class RatingResponseDTO {
     private UUID id;
-    private String keycloakSub;
-    private String name;
-    private String email;
-    private Double ratingAvg;
+    private UUID tripId;
+    private UUID fromPassengerId;
+    private UUID toPassengerId;
+    private Integer score;
+    private String comment;
 }
