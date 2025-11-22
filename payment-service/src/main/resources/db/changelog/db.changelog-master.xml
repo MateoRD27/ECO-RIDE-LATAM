@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1-create-payment-intents" author="ecoride">
+        <createTable tableName="payment_intents">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="reservation_id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="amount" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2-create-charges" author="ecoride">
+        <createTable tableName="charges">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="amount" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider_ref" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_intent_id" type="uuid">
+                <constraints nullable="false"
+                             foreignKeyName="fk_charge_payment_intent"
+                             references="payment_intents(id)"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createIndex tableName="charges" indexName="idx_charges_intent">
+            <column name="payment_intent_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
