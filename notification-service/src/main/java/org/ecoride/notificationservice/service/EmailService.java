@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 
 public class EmailService {
+    @Autowired
     private final JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
