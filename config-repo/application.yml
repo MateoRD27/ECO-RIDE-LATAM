@@ -245,6 +245,24 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
+  # CONFIGURACIÓN GMAIL
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ramosdealmateo@gmail.com
+    password: xlmjtryudpajsxdx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
+
 eureka:
   client:
     service-url:

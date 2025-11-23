@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j  // ⬅️ Agregar
+@Slf4j  // Agregar
 public class DriverProfileServiceImpl implements DriverProfileService {
 
     private final DriverProfileRepository driverProfileRepository;

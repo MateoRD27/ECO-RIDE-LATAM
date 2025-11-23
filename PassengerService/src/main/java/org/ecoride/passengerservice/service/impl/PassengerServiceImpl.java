@@ -45,4 +45,10 @@ public class PassengerServiceImpl implements PassengerService {
 
         return PassengerMapper.toDto(passenger);
     }
+    @Override
+    public PassengerResponseDTO getPassengerById(java.util.UUID id) {
+        Passenger passenger = passengerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger not found with id: " + id));
+        return PassengerMapper.toDto(passenger);
+    }
 }

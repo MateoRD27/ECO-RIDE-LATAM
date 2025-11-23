@@ -30,4 +30,12 @@ public class PassengerController {
         PassengerResponseDTO response = passengerService.createPassengerIfNotExists(keycloakSub, name, email);
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get passenger by ID", description = "Internal endpoint for other services")
+    public ResponseEntity<PassengerResponseDTO> getPassengerById(@PathVariable java.util.UUID id) {
+        PassengerResponseDTO passenger = passengerService.getPassengerById(id); // Necesitamos crear este método en el service
+        return ResponseEntity.ok(passenger);
+    }
 }
