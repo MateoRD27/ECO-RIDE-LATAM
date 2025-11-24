@@ -4,7 +4,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://postgres-notification:5432/notificationdb
+    url: jdbc:postgresql://localhost:5432/notificationdb
     username: notificationuser
     password: notificationpass
     driver-class-name: org.postgresql.Driver
@@ -16,10 +16,10 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
 
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:9092
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserizer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       group-id: notification-service-group
       properties:
         spring.json.trusted.packages: "*"
@@ -45,4 +45,4 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
