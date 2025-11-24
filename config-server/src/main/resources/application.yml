@@ -6,7 +6,10 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/faritteranacosta/ECO-RIDE-LATAM/tree/main/config-server
+          uri: https://github.com/faritteranacosta/ECO-RIDE-LATAM
+          default-label: main
+          search-paths:
+            - config-server
 
 server:
   port: 8888
