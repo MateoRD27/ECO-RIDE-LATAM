@@ -5,7 +5,7 @@ spring:
     config:
       server:
         native:
-          search-locations: classpath:/config-repo,file:///config-repo
+          search-locations: file:///config-repo
   profiles:
     active: native
 
