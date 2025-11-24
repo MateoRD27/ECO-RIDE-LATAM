@@ -1,3 +1,10 @@
+
+
+# docker example
+# spring.config.import: optional:configserver:http://config-server:8888
+server:
+  port: 8080
+
 spring:
   application:
     name: api-gateway
@@ -5,5 +12,66 @@ spring:
   config:
     import: optional:configserver:http://localhost:8888
 
-# docker example
-# spring.config.import: optional:configserver:http://config-server:8888
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+
+      routes:
+        - id: trip-service
+          uri: lb://trip-service
+          predicates:
+            - Path=/api/trips/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: tripServiceCB
+                fallbackUri: forward:/fallback/trips
+            - TokenRelay
+
+        - id: passenger-service
+          uri: lb://passenger-service
+          predicates:
+            - Path=/api/passengers/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: passengerServiceCB
+                fallbackUri: forward:/fallback/passengers
+            - TokenRelay
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: paymentServiceCB
+                fallbackUri: forward:/fallback/payments
+            - TokenRelay
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
+            - TokenRelay
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8180/realms/ecoride/protocol/openid-connect/certs
+          # issuer-uri: http://localhost:8180/realms/ecoride
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

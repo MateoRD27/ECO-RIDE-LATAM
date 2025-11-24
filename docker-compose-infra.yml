@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: tripuser
       POSTGRES_PASSWORD: trippass
     ports:
-      - "5432:5432"
+      - "5436:5432"
     volumes:
       - trip-data:/var/lib/postgresql/data
     networks:
