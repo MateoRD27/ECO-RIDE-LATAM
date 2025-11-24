@@ -6,7 +6,6 @@ spring:
     name: notification-service
 
   datasource:
-    # Nota: Si ejecutas desde IntelliJ (local), cambia 'postgres-notification' por 'localhost'
     url: jdbc:postgresql://postgres-notification:5432/notificationdb
     username: notificationuser
     password: notificationpass
@@ -24,7 +23,6 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
 
   kafka:
-    # Nota: Si ejecutas desde IntelliJ (local), cambia 'kafka' por 'localhost'
     bootstrap-servers: kafka:9092
     consumer:
       group-id: notification-service-group
@@ -55,5 +53,4 @@ spring:
 eureka:
   client:
     service-url:
-      # Nota: Si ejecutas desde IntelliJ (local), cambia 'eureka-server' por 'localhost'
       defaultZone: http://eureka-server:8761/eureka/
