@@ -64,12 +64,12 @@ public class PaymentService {
             if (success) {
                 handleSuccess(intent, correlationId, event.getReservationId());
             } else {
-                handleFailure(intent, "Fondos insuficientes (Simulado: monto > 100000)", correlationId, event.getReservationId());
+                handleFailure(intent, "Fondos insuficientes (Simulado: monto > 100000)", correlationId, event.getReservationId(), event.getPassengerId());
             }
 
         } catch (Exception e) {
             log.error("[{}] Error técnico procesando pago: {}", correlationId, e.getMessage());
-            handleFailure(intent, "Error interno del sistema de pagos", correlationId, event.getReservationId());
+            handleFailure(intent, "Error interno del sistema de pagos", correlationId, event.getReservationId(), event.getPassengerId());
         }
     }
 
@@ -105,7 +105,7 @@ public class PaymentService {
     /**
      * fallo actualiza Intent a FAILED y notifica para compensación.
      */
-    private void handleFailure(PaymentIntent intent, String reason, String correlationId, UUID reservationId) {
+    private void handleFailure(PaymentIntent intent, String reason, String correlationId, UUID reservationId, UUID passengerId) {
         // actualizar estado
         intent.setStatus(PaymentStatus.FAILED);
         paymentIntentRepository.save(intent);
@@ -113,6 +113,7 @@ public class PaymentService {
         // publicar evento de Fallo (Compensación)
         ReservationEvents.PaymentFailed failedEvent = ReservationEvents.PaymentFailed.builder()
                 .reservationId(reservationId)
+                .passengerId(passengerId)
                 .reason(reason)
                 .correlationId(correlationId)
                 .build();

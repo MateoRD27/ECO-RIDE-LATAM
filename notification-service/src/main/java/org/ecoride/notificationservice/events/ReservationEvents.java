@@ -28,6 +28,7 @@ public class ReservationEvents {
     @Builder
     public static class PaymentFailed {
         private UUID reservationId;
+        private UUID passengerId;
         private String reason;
         private String correlationId;
     }
