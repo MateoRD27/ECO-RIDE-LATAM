@@ -339,7 +339,7 @@ services:
 
   passenger-service:
     build:
-      context: ./PassengerService
+      context: passenger-service3
       dockerfile: Dockerfile
     container_name: ecoride-passenger-service
     ports:
