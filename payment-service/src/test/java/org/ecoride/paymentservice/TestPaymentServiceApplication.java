@@ -1,6 +1,7 @@
 package org.ecoride.paymentservice;
 
 import org.springframework.boot.SpringApplication;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
 public class TestPaymentServiceApplication {
 

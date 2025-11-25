@@ -5,6 +5,8 @@ import lombok.*;
 import org.ecoride.tripservice.model.enums.TripStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,12 +28,15 @@ public class Trip {
     private UUID id;
 
     @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.UUID)
     private UUID driverId;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 500, columnDefinition = "varchar(500)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private String origin;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 500, columnDefinition = "varchar(500)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private String destination;
 
     @Column(nullable = false)

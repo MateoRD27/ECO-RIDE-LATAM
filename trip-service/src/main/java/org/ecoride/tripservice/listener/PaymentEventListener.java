@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.ecoride.tripservice.events.ReservationEvents;
 import org.ecoride.tripservice.service.TripService;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,7 +21,10 @@ public class PaymentEventListener {
             groupId = "trip-service-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void handlePaymentAuthorized(ReservationEvents.PaymentAuthorized event) {
+    public void handlePaymentAuthorized(
+            @Payload ReservationEvents.PaymentAuthorized event,
+            Acknowledgment acknowledgment) {
+
         log.info("[{}] Recibido evento PaymentAuthorized para reserva: {}",
                 event.getCorrelationId(), event.getReservationId());
 
@@ -28,10 +33,12 @@ public class PaymentEventListener {
                     event.getReservationId(),
                     event.getCorrelationId()
             );
+            acknowledgment.acknowledge();
             log.info("[{}] Reserva confirmada exitosamente", event.getCorrelationId());
         } catch (Exception e) {
             log.error("[{}] Error confirmando reserva: {}",
                     event.getCorrelationId(), e.getMessage(), e);
+            // No hacer acknowledge para que se reintente
         }
     }
 
@@ -40,7 +47,10 @@ public class PaymentEventListener {
             groupId = "trip-service-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void handlePaymentFailed(ReservationEvents.PaymentFailed event) {
+    public void handlePaymentFailed(
+            @Payload ReservationEvents.PaymentFailed event,
+            Acknowledgment acknowledgment) {
+
         log.warn("[{}] Recibido evento PaymentFailed para reserva: {}, reason: {}",
                 event.getCorrelationId(), event.getReservationId(), event.getReason());
 
@@ -50,6 +60,7 @@ public class PaymentEventListener {
                     "PAYMENT_FAILED: " + event.getReason(),
                     event.getCorrelationId()
             );
+            acknowledgment.acknowledge();
             log.info("[{}] Compensación completada: reserva cancelada y asiento liberado",
                     event.getCorrelationId());
         } catch (Exception e) {

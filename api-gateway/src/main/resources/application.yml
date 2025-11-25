@@ -69,8 +69,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8180/realms/ecoride/protocol/openid-connect/certs
-          # issuer-uri: http://localhost:8180/realms/ecoride
+          issuer-uri: http://localhost:8180/realms/ecoride
 eureka:
   client:
     service-url:

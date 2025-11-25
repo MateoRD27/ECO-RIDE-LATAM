@@ -28,8 +28,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/actuator/health", "/actuator/info").permitAll()
 
@@ -60,26 +59,16 @@ public class SecurityConfig {
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
 
+    // Extrae roles desde realm_access.roles
     static class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-        @Override
         public Collection<GrantedAuthority> convert(Jwt jwt) {
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-
-            if (realmAccess == null || !realmAccess.containsKey("roles")) {
-                log.warn("No realm_access or roles found in JWT token for user: {}", jwt.getSubject());
-                return List.of();
-            }
-
-            @SuppressWarnings("unchecked")
             List<String> roles = (List<String>) realmAccess.get("roles");
-
-            List<GrantedAuthority> authorities = roles.stream()
+            return roles.stream()
                     .filter(role -> role.startsWith("ROLE_"))
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-
-            log.debug("Extracted authorities for user {}: {}", jwt.getSubject(), authorities);
-            return authorities;
         }
     }
+
 }

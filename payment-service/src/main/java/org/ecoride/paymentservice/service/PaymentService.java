@@ -35,7 +35,6 @@ public class PaymentService {
     @Transactional
     public void processPayment(ReservationEvents.ReservationRequested event) {
         String correlationId = event.getCorrelationId();
-        log.info("[{}] Iniciando procesamiento de pago para reserva: {}", correlationId, event.getReservationId());
 
         //  Idempotencia Verificar si ya existe un intento para esta reserva
         Optional<PaymentIntent> existingIntent = paymentIntentRepository.findByReservationId(event.getReservationId());

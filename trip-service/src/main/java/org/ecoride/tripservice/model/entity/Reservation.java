@@ -5,6 +5,8 @@ import lombok.*;
 import org.ecoride.tripservice.model.enums.ReservationStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,6 +29,7 @@ public class Reservation {
     private Trip trip;
 
     @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.UUID)
     private UUID passengerId;
 
     @Enumerated(EnumType.STRING)

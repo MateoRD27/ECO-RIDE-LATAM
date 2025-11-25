@@ -14,6 +14,7 @@ import org.ecoride.tripservice.model.enums.ReservationStatus;
 import org.ecoride.tripservice.model.enums.TripStatus;
 import org.ecoride.tripservice.repository.ReservationRepository;
 import org.ecoride.tripservice.repository.TripRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final ReservationRepository reservationRepository;
+    @Autowired
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String TOPIC_RESERVATION_REQUESTED = "reservation-requested";
