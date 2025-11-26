@@ -12,6 +12,7 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class KafkaConfig {
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 3);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+
         return new DefaultKafkaProducerFactory<>(config);
     }
 
@@ -49,6 +51,7 @@ public class KafkaConfig {
         config.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "*");
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
