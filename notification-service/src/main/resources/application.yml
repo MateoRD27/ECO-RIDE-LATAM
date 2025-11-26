@@ -43,6 +43,31 @@ spring:
           writetimeout: 5000
 
 
+# Configuración de Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+
+  endpoint:
+    health:
+      show-details: always
+
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      zipkin:
+        endpoint: http://localhost:9411/api/v2/spans
+
+
+# Configuración de logs con trazabilidad
+logging:
+  pattern:
+    level: "%5p [${spring.application.name}, %X{traceId:-}, %X{spanId:-}]"
+
+
 eureka:
   client:
     service-url:

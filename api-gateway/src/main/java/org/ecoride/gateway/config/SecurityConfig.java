@@ -30,7 +30,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .pathMatchers("/actuator/health", "/actuator/info", "/actuator/metrics","/actuator/prometheus").permitAll()
 
                         .pathMatchers(HttpMethod.POST, "/api/trips").hasRole("DRIVER")
                         .pathMatchers(HttpMethod.GET, "/api/trips/**").hasAnyRole("DRIVER", "PASSENGER")
