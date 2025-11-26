@@ -66,7 +66,7 @@ public class TripService {
                 origin, destination, from, to);
 
         List<Trip> trips = tripRepository.searchTrips(
-                TripStatus.ACTIVE, origin, destination, from, to
+                origin, destination, from, to, TripStatus.ACTIVE
         );
 
         return trips.stream()
