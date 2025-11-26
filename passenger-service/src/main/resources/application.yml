@@ -34,11 +34,27 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, metrics, prometheus
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+          - loggers
+          - threaddump
+          - heapdump
 
   endpoint:
     health:
       show-details: always
+
+  metrics:
+    enable:
+      jvm: true
+      system: true
+      process: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
   tracing:
     sampling:
@@ -47,12 +63,10 @@ management:
       zipkin:
         endpoint: http://localhost:9411/api/v2/spans
 
-
 # Configuración de logs con trazabilidad
 logging:
   pattern:
     level: "%5p [${spring.application.name}, %X{traceId:-}, %X{spanId:-}]"
-
 
 eureka:
   client:
