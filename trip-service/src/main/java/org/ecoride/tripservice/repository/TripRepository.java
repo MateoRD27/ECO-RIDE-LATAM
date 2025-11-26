@@ -16,20 +16,24 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
 
     List<Trip> findByDriverIdAndStatus(UUID driverId, TripStatus status);
 
-    @Query("SELECT t FROM Trip t WHERE t.status = :status " +
-            "AND (:origin IS NULL OR LOWER(t.origin) LIKE LOWER(CONCAT('%', :origin, '%'))) " +
-            "AND (:destination IS NULL OR LOWER(t.destination) LIKE LOWER(CONCAT('%', :destination, '%'))) " +
-            "AND (:from IS NULL OR t.startTime >= :from) " +
-            "AND (:to IS NULL OR t.startTime <= :to) " +
-            "AND t.seatsAvailable > 0 " +
-            "ORDER BY t.startTime ASC")
+    @Query("""
+        SELECT t FROM Trip t
+        WHERE t.status = :status
+        AND lower(t.origin) LIKE lower(CONCAT('%', COALESCE(:origin, ''), '%'))
+        AND lower(t.destination) LIKE lower(CONCAT('%', COALESCE(:destination, ''), '%'))
+        AND t.startTime >= COALESCE(:from, t.startTime)
+        AND t.startTime <= COALESCE(:to, t.startTime)
+        AND t.seatsAvailable > 0
+        ORDER BY t.startTime
+        """)
     List<Trip> searchTrips(
-            @Param("status") TripStatus status,
             @Param("origin") String origin,
             @Param("destination") String destination,
             @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to
+            @Param("to") LocalDateTime to,
+            @Param("status") TripStatus status
     );
+
 
     @Query("SELECT t FROM Trip t WHERE t.driverId = :driverId " +
             "AND t.startTime BETWEEN :start AND :end")
