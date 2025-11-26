@@ -34,6 +34,6 @@ public class CreateTripRequest {
 
     @NotNull(message = "El precio es obligatorio")
     @DecimalMin(value = "0.0", inclusive = false, message = "El precio debe ser mayor a 0")
-    @DecimalMax(value = "1000.0", message = "El precio no puede exceder 1000")
+    @DecimalMax(value = "1000000.0", message = "El precio no puede exceder 1000000")
     private BigDecimal price;
 }

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,8 +32,9 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final ReservationRepository reservationRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     @Autowired
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private ObjectMapper objectMapper;
 
     private static final String TOPIC_RESERVATION_REQUESTED = "reservation-requested";
     private static final String TOPIC_RESERVATION_CONFIRMED = "reservation-confirmed";
@@ -119,7 +121,7 @@ public class TripService {
                 .correlationId(correlationId)
                 .build();
 
-        kafkaTemplate.send(TOPIC_RESERVATION_REQUESTED, event);
+        kafkaTemplate.send(TOPIC_RESERVATION_REQUESTED, objectMapper.writeValueAsString(event));
         log.info("[{}] Evento ReservationRequested publicado", correlationId);
 
         return mapToReservationResponse(reservation);
@@ -149,7 +151,7 @@ public class TripService {
                 .correlationId(correlationId)
                 .build();
 
-        kafkaTemplate.send(TOPIC_RESERVATION_CONFIRMED, event);
+        kafkaTemplate.send(TOPIC_RESERVATION_CONFIRMED, objectMapper.writeValueAsString(event));
         log.info("[{}] Reserva confirmada y evento publicado", correlationId);
     }
 
@@ -175,7 +177,7 @@ public class TripService {
                 .correlationId(correlationId)
                 .build();
 
-        kafkaTemplate.send(TOPIC_RESERVATION_CANCELLED, event);
+        kafkaTemplate.send(TOPIC_RESERVATION_CANCELLED, objectMapper.writeValueAsString(event));
         log.info("[{}] Reserva cancelada, asiento liberado, evento publicado", correlationId);
     }
 

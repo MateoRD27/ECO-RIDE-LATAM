@@ -9,10 +9,13 @@ import org.ecoride.paymentservice.model.enums.PaymentStatus;
 import org.ecoride.paymentservice.model.enums.Providers;
 import org.ecoride.paymentservice.repository.ChargeRepository;
 import org.ecoride.paymentservice.repository.PaymentIntentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -24,7 +27,10 @@ import java.util.UUID;
 public class PaymentService {
     private final PaymentIntentRepository paymentIntentRepository;
     private final ChargeRepository chargeRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    private final KafkaTemplate<String,String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
 
     // Constantes para los tópicos de salida
     private static final String TOPIC_PAYMENT_AUTHORIZED = "payment-authorized";
@@ -33,44 +39,68 @@ public class PaymentService {
 
     @KafkaListener(topics = "reservation-requested", groupId = "payment-service-group")
     @Transactional
-    public void processPayment(ReservationEvents.ReservationRequested event) {
-        String correlationId = event.getCorrelationId();
-
-        //  Idempotencia Verificar si ya existe un intento para esta reserva
-        Optional<PaymentIntent> existingIntent = paymentIntentRepository.findByReservationId(event.getReservationId());
-        if (existingIntent.isPresent()) {
-            log.warn("[{}] Idempotencia: Ya existe un intento de pago para la reserva {}. Estado actual: {}",
-                    correlationId, event.getReservationId(), existingIntent.get().getStatus());
-            return; // No procesar de nuevo
-        }
-
-        //  Crear el PaymentIntent inicial (PENDING)
-        PaymentIntent intent = PaymentIntent.builder()
-                .reservationId(event.getReservationId())
-                .amount(event.getAmount())
-                .currency("COP")
-                .status(PaymentStatus.PENDING)
-                .build();
-
-        intent = paymentIntentRepository.save(intent);
-        log.debug("[{}] PaymentIntent creado con ID: {}", correlationId, intent.getId());
+    public void processPayment(String rawJson) {
+        String correlationId = null;
 
         try {
-            //  Simulación de Pasarela de Pagos
-            // simulada: si el monto es > 100000, falla.
+            // Deserializar manualmente (porque lo envías como String JSON)
+            ReservationEvents.ReservationRequested event =
+                    objectMapper.readValue(rawJson, ReservationEvents.ReservationRequested.class);
+
+            correlationId = event.getCorrelationId();
+
+            log.info("[{}] Received reservation-requested event: {}", correlationId, event);
+
+            //Idempotencia: evitar procesar dos veces la misma reserva
+            Optional<PaymentIntent> existingIntent =
+                    paymentIntentRepository.findByReservationId(event.getReservationId());
+
+            if (existingIntent.isPresent()) {
+                log.warn("[{}] Idempotencia: Ya existe un intento de pago para la reserva {}. Estado actual: {}",
+                        correlationId,
+                        event.getReservationId(),
+                        existingIntent.get().getStatus());
+                return;
+            }
+
+            // Crear PaymentIntent en estado PENDING
+            PaymentIntent intent = PaymentIntent.builder()
+                    .reservationId(event.getReservationId())
+                    .amount(event.getAmount())
+                    .currency("COP")
+                    .status(PaymentStatus.PENDING)
+                    .build();
+
+            intent = paymentIntentRepository.save(intent);
+
+            log.debug("[{}] PaymentIntent creado con ID: {}", correlationId, intent.getId());
+
+            // Simulación de pasarela de pagos
             boolean success = event.getAmount().compareTo(new BigDecimal("100000")) <= 0;
 
             if (success) {
-                handleSuccess(intent, correlationId, event.getReservationId());
+                handleSuccess(
+                        intent,
+                        correlationId,
+                        event.getReservationId()
+                );
             } else {
-                handleFailure(intent, "Fondos insuficientes (Simulado: monto > 100000)", correlationId, event.getReservationId(), event.getPassengerId());
+                handleFailure(
+                        intent,
+                        "Fondos insuficientes (Simulado: monto > 100000)",
+                        correlationId,
+                        event.getReservationId(),
+                        event.getPassengerId()
+                );
             }
 
         } catch (Exception e) {
-            log.error("[{}] Error técnico procesando pago: {}", correlationId, e.getMessage());
-            handleFailure(intent, "Error interno del sistema de pagos", correlationId, event.getReservationId(), event.getPassengerId());
+            log.error("[{}] Error deserializando o procesando evento: {}",
+                    correlationId != null ? correlationId : "NO-CORRELATION",
+                    e.getMessage(), e);
         }
     }
+
 
     /**
      * Exito crea el Charge, actualiza Intent y notifica.
@@ -96,8 +126,7 @@ public class PaymentService {
                 .chargeId(charge.getId())
                 .correlationId(correlationId)
                 .build();
-
-        kafkaTemplate.send(TOPIC_PAYMENT_AUTHORIZED, successEvent);
+        kafkaTemplate.send(TOPIC_PAYMENT_AUTHORIZED, objectMapper.writeValueAsString(successEvent));
         log.info("[{}] PAGO EXITOSO. ChargeId: {}. Evento enviado a {}", correlationId, charge.getId(), TOPIC_PAYMENT_AUTHORIZED);
     }
 
@@ -117,7 +146,7 @@ public class PaymentService {
                 .correlationId(correlationId)
                 .build();
 
-        kafkaTemplate.send(TOPIC_PAYMENT_FAILED, failedEvent);
+        kafkaTemplate.send(TOPIC_PAYMENT_FAILED, objectMapper.writeValueAsString(failedEvent));
         log.warn("[{}] PAGO FALLIDO. Razón: {}. Evento enviado a {}", correlationId, reason, TOPIC_PAYMENT_FAILED);
     }
 }
