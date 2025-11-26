@@ -38,7 +38,6 @@ public class PaymentEventListener {
         } catch (Exception e) {
             log.error("[{}] Error confirmando reserva: {}",
                     event.getCorrelationId(), e.getMessage(), e);
-            // No hacer acknowledge para que se reintente
         }
     }
 
